@@ -4,6 +4,20 @@ import "./styles.scss";
 import { Edit, Remove, RemoveCircle, RemoveCircleOutline } from "@mui/icons-material";
 import LinkedIconButton from "../linked-icon-button";
 
+function columnDataByType(id, data) {
+    switch(typeof data) {
+        case 'object':
+            return <td key={id}><div>{data.join(', ')}</div></td>
+        
+        case 'string':
+                const date = new Date(data);
+                if(date.toString() !== "Invalid Date")
+                    return <td key={id}><div>{date.toLocaleDateString()}</div></td>
+                else    
+                    return <td key={id}><div>{data}</div></td>  
+    }
+}
+
 function DataTable({columns, data, pathEdit, onRemove}) {
     return (
         <table className="datatable">
@@ -18,9 +32,7 @@ function DataTable({columns, data, pathEdit, onRemove}) {
             <tbody className="datatable__body">
                 {data && data.map(row => (
                     <tr key={row.id}>
-                        {columns.map(column => (
-                            <td key={column.id}><div>{row[column.id]}</div></td>
-                        ))}
+                        {columns.map(column => columnDataByType(column.id, row[column.id]))}
                         <td>
                             <div className="datatable__body__actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                                 <LinkedIconButton className="datatable__button" path={pathEdit + row.id}>

@@ -5,7 +5,7 @@ import "./styles.scss";
 import PageHeader from "../../../components/page-header";
 import PageBody from "../../../components/page-body";
 import { useNavigate } from "react-router";
-import { createDepartment } from "../../../api/departamentos";
+import { createDepartment } from "../../../api/departamento";
 import Button from "../../../components/button";
 
 function CriarDepartamentoPage() {

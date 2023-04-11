@@ -1,5 +1,4 @@
 import { IconButton } from "@mui/material";
-import "./styles.scss";
 import { Link } from "react-router-dom";
 
 function LinkedIconButton({path, children}) {

@@ -1,4 +1,4 @@
-.field {
+.datepicker {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -10,15 +10,19 @@
         font-size: 0.8em;
         transition: 0.2s all;
         color: #333;
+        z-index: 2;
     }
 
-    &__input {
+    &__date {
         background-color: transparent;
         padding: .75em;
         border-radius: 4px;
+        z-index: 1;
+        width: 100%;
     }
 
-    &:focus-within > &__input {
+    &:focus-within > &__date {
+        z-index: 1;
     }
 
     &:focus-within > &__label {
@@ -27,6 +31,7 @@
         padding: 0 0.2em;
         background-color: #f5f5f5;
         color: #000;
+        z-index: 2;
     }
 
     &__label-typed {
@@ -35,9 +40,11 @@
         padding: 0 0.2em;
         background-color: #f5f5f5;
         color: #000;
+        z-index: 2;
     }
 
-    &__input-typed {
+    &__date-typed {
+        z-index: 1;
     }
 }
 

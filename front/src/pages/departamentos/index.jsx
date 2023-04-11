@@ -4,7 +4,7 @@ import PageBody from "../../components/page-body";
 import PageHeader from "../../components/page-header";
 import columns from "./constants/datatable-columns";
 import "./styles.scss";
-import { getDepartments, removeDepartmentById } from "../../api/departamentos";
+import { getDepartments, removeDepartmentById } from "../../api/departamento";
 
 function DepartamentosPage() {
     const [departamentos, setDepartamentos] = useState([]);

@@ -4,10 +4,10 @@ import { Navigate, Route } from "react-router";
 
 import NaoConformidadePage from "../../pages/nao-conformidade";
 import DepartamentosPage from "../../pages/departamentos";
-import CriarNaoConformidadePage from "../../pages/nao-conformidade/criar-nao-conformidade";
-import EditarNaoConformidade from "../../pages/nao-conformidade/editar-nao-conformidade";
 import CriarDepartamentoPage from "../../pages/departamentos/criar-departamento";
 import EditarDepartamentoPage from "../../pages/departamentos/editar-departamento";
+import CriarNaoConformidadePage from "../../pages/nao-conformidade/features/criar-nao-conformidade";
+import EditarNaoConformidadePage from "../../pages/nao-conformidade/features/editar-nao-conformidade";
 
 function Content() {
     return (
@@ -17,7 +17,7 @@ function Content() {
 
                 <Route path="/nao-conformidade" element={<NaoConformidadePage/>}></Route>
                 <Route path="/nao-conformidade/criar" element={<CriarNaoConformidadePage/>}></Route>
-                <Route path="/nao-conformidade/:id" element={<EditarNaoConformidade/>}></Route>
+                <Route path="/nao-conformidade/:id" element={<EditarNaoConformidadePage/>}></Route>
 
                 <Route path="/departamentos" element={<DepartamentosPage/>}></Route>
                 <Route path="/departamentos/criar" element={<CriarDepartamentoPage/>}></Route>

@@ -11,8 +11,8 @@ function NaoConformidadePage() {
 
     useEffect(() => {
         getNaoConformidades()
-            .then((reponse) => {
-                setNaoConformidade(reponse.data);
+            .then((response) => {
+                setNaoConformidade(response);
             })
             .catch((err) => {
                 alert(err.message);

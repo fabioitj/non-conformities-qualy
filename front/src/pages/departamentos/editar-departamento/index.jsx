@@ -5,7 +5,7 @@ import "./styles.scss";
 import PageHeader from "../../../components/page-header";
 import PageBody from "../../../components/page-body";
 import { useNavigate, useParams } from "react-router";
-import { getDepartmentById, updateDepartmentById } from "../../../api/departamentos";
+import { getDepartmentById, updateDepartmentById } from "../../../api/departamento";
 import Button from "../../../components/button";
 
 function EditarDepartamentoPage() {

@@ -19,7 +19,7 @@ function Title({h, children}) {
 
     return (
         <>
-            {renderRightChildren}
+            {renderRightChildren()}
         </>
     )
 }
