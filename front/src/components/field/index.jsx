@@ -1,8 +1,7 @@
+import { isNull } from "../../scripts/validation";
 import "./styles.scss";
 
-const isNull = (el) => el == null || el == undefined || el == "";
-
-function Field({label, type, value, setValue, isReadOnly = false, isRequired = false}) {
+function Field({label, type, value, setValue, isReadOnly = false}) {
     const nullValue = isNull(value);
 
     return (

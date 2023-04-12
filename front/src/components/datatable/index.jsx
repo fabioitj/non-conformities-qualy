@@ -1,52 +1,72 @@
-import { IconButton } from "@mui/material";
-import LinkedButton from "../linked-button";
+import { CircularProgress, IconButton } from "@mui/material";
 import "./styles.scss";
-import { Edit, Remove, RemoveCircle, RemoveCircleOutline } from "@mui/icons-material";
+import { ArrowBack, ArrowForward, Edit, Remove, RemoveCircle, RemoveCircleOutline } from "@mui/icons-material";
 import LinkedIconButton from "../linked-icon-button";
+import GroupButton from "../group-button";
+import { useEffect, useState } from "react";
+import Title from "../title";
+import DataTableHeader from "./components/header";
+import DataTableBody from "./components/body";
+import Separator from "../separator";
 
-function columnDataByType(id, data) {
-    switch(typeof data) {
-        case 'object':
-            return <td key={id}><div>{data.join(', ')}</div></td>
-        
-        case 'string':
-                const date = new Date(data);
-                if(date.toString() !== "Invalid Date")
-                    return <td key={id}><div>{date.toLocaleDateString()}</div></td>
-                else    
-                    return <td key={id}><div>{data}</div></td>  
-    }
+const getTotalPages = (data, unitsPerPage) => {
+    return data ? Math.ceil(data.length / unitsPerPage) : 1;
 }
 
-function DataTable({columns, data, pathEdit, onRemove}) {
+function DataTable({columns, data, unitsPerPage = 5, pathEdit, onRemove}) {
+    const [page, setPage] = useState(1);
+    const total_pages = getTotalPages(data, unitsPerPage) || 1;
+    
+    const handleNextPage = () => {
+        if(page + 1 > total_pages)
+            return;
+        
+        setPage(page => page + 1);
+    }
+
+    const handlePreviousPage = () => {
+        if(page - 1 < 1) 
+            return;
+        
+        setPage(page => page - 1);
+    }
+
+    const verifyOnRemove = (id) => {
+        if(data && Math.ceil((data.length - 1) / unitsPerPage) < total_pages) {
+            setPage(page => page - 1);
+        }
+
+        onRemove(id);
+    }
+
     return (
-        <table className="datatable">
-            <thead className="datatable__header">
-                <tr>
-                    {columns && columns.map(column => (
-                        <th key={column.id} style={{ width: column.width }}>{column.title}</th>
-                    ))}
-                    <th style={{ textAlign: 'center' }}>Ações</th>
-                </tr>
-            </thead>
-            <tbody className="datatable__body">
-                {data && data.map(row => (
-                    <tr key={row.id}>
-                        {columns.map(column => columnDataByType(column.id, row[column.id]))}
-                        <td>
-                            <div className="datatable__body__actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                <LinkedIconButton className="datatable__button" path={pathEdit + row.id}>
-                                    <Edit/>
-                                </LinkedIconButton>
-                                <IconButton onClick={() => { onRemove(row.id) }}>
-                                    <RemoveCircleOutline/>
+        <>
+            {
+                !data || (data && data.length === 0) ? (
+                    <CircularProgress color="inherit" style={{ alignSelf: 'center'}}/>
+                ) : (
+                    <>
+                        <div className="datatable">
+                            <table className="datatable__box">
+                                <DataTableHeader columns={columns}/>
+                                <DataTableBody columns={columns} data={data} page={page} unitsPerPage={unitsPerPage} pathEdit={pathEdit} onRemove={verifyOnRemove}/>
+                            </table>
+                        </div>
+                        <div className="datatable__buttons">
+                            <GroupButton>
+                                <IconButton onClick={handlePreviousPage} disabled={page - 1 < 1}>
+                                    <ArrowBack/>
                                 </IconButton>
-                            </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+                                <Title h={'4'}>{page}/{total_pages}</Title>
+                                <IconButton onClick={handleNextPage} disabled={page + 1 > total_pages}>
+                                    <ArrowForward/>
+                                </IconButton>
+                            </GroupButton>
+                        </div>
+                    </>
+                )
+            }
+        </>
     );
 };
 

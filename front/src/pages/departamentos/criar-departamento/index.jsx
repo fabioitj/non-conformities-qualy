@@ -7,6 +7,7 @@ import PageBody from "../../../components/page-body";
 import { useNavigate } from "react-router";
 import { createDepartment } from "../../../api/departamento";
 import Button from "../../../components/button";
+import GroupButton from "../../../components/group-button";
 
 function CriarDepartamentoPage() {
     const [nome, setNome] = useState("");
@@ -31,10 +32,13 @@ function CriarDepartamentoPage() {
                 title="Criar departamentos"
             />
             <PageBody>
-                <Form>
+                <Form onSubmit={handleOnClick}>
                     <Field label="Nome" type="text" value={nome} setValue={setNome}/>
                     
-                    <Button type="submit" onClick={handleOnClick}>Salvar</Button>
+                    <GroupButton>
+                        <Button type="button" onClick={() => navigate(-1)}>Voltar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </GroupButton>
                 </Form>
             </PageBody>
         </section>

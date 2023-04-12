@@ -1,11 +1,9 @@
+import { isNull } from "../../scripts/validation";
 import "./styles.scss";
 import DatePicker from "react-datepicker";
 
-const isNull = (el) => el == null || el == undefined || el == "";
-
-function Datepicker({label, value, setValue, isReadOnly = false, isRequired = false}) {
+function Datepicker({label, value, setValue, isReadOnly = false}) {
     const nullValue = isNull(value);
-    
 
     return (
         <div className="datepicker">

@@ -1,13 +1,13 @@
 const columns = [
     {
+        id: 'ocurrence-date',
+        title: 'Data',
+        width: '20%'
+    },
+    {
         id: 'description',
         title: 'Descrição',
         width: '60%'
-    },
-    {
-        id: 'ocurrence-date',
-        title: 'Data de ocorrência',
-        width: '20%'
     },
     {
         id: 'departments',

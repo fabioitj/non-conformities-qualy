@@ -16,6 +16,7 @@
         background-color: transparent;
         padding: .75em;
         border-radius: 4px;
+        border: 1px solid black;
     }
 
     &:focus-within > &__input {

@@ -22,7 +22,6 @@ function NaoConformidadePage() {
     const handleOnRemove = (id) => {
         removeNaoConformidade(id)
             .then((response) => {
-                console.log(response.data);
                 setNaoConformidade(naoConformidade => naoConformidade.filter(item => item.id !== id));
             })
             .catch((err) => {
@@ -33,7 +32,7 @@ function NaoConformidadePage() {
     return (
         <section className="nao-conformidade">
             <PageHeader
-                title="Não confirmidade"
+                title="Não conformidade"
                 hasAdd
                 pathAdd="/nao-conformidade/criar"
             />

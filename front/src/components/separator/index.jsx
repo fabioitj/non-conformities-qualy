@@ -1,6 +1,6 @@
 function Separator() {
     return (
-        <hr/>
+        <hr style={{ width: '100%' }}/>
     );
 }
 

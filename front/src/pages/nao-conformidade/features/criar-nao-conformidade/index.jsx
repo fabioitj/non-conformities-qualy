@@ -6,51 +6,71 @@ import PageBody from "../../../../components/page-body";
 import Form from "../../../../components/form";
 import Button from "../../../../components/button";
 import { getDepartments } from "../../../../api/departamento";
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import { createNaoConformidade } from "../../../../api/nao-conformidade";
-import Separator from "../../../../components/separator";
 import Datepicker from "../../../../components/datepicker";
+import SelectCustom from "../../../../components/select";
+import departmentToOptions from "../../mappers/departments-to-options";
+import { useNavigate } from "react-router-dom";
+import GroupButton from "../../../../components/group-button";
+import { isNull } from "../../../../scripts/validation";
 
 function CriarNaoConformidadePage() {
     const [descricao, setDescricao] = useState("");
     const [dataOcorrencia, setDataOcorrencia] = useState();
-    const [departamentos, setDepartamentos] = useState([1, 2]);
+    const [departamentos, setDepartamentos] = useState();
     const [departamentosOptions, setDepartamentosOptions] = useState();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getDepartments()
             .then((response) => {
-                console.log(response);
-                setDepartamentosOptions(response.data);
+                setDepartamentosOptions(departmentToOptions(response.data));
             })
     }, []);
 
-    const handleAddDepartamento = (id) => {
-        setDepartamentos([...departamentos, id]);
-    }
+    const validaCampos = () => {
+        let message = "";
 
-    const handleRemoveDepartamento = (id) => {
-        setDepartamentos(departamentos.filter((item) => item !== id));
+        if(isNull(descricao)) {
+            message += "Campo 'Descrição' obrigatório\n";
+        }
+        
+        if(isNull(dataOcorrencia)) {
+            message += "Campo 'Data de ocorrência' obrigatório\n";
+        }
+
+        if(!departamentos || (departamentos && departamentos.length === 0)) {
+            message += "Campo 'Departamentos' obrigatório\n";
+        }
+
+        if(!isNull(message)){
+            alert(message);
+            return false;
+        }
+
+        return true;
     }
 
     const handleOnSubmit = (e) => {
         e.preventDefault();
 
+        if(!validaCampos()) return;
+
         createNaoConformidade({
             'description': descricao,
             'ocurrence-date': dataOcorrencia,
-            'departments': departamentos
+            'departments': departamentos ? departamentos.map(departamento => departamento.value) : []
         })
             .then((response) => {
-                console.log(response.data);
+                alert("Não conformidade criada com sucesso!");
+                navigate("/nao-conformidade/" + response.data.id);
             })
             .catch((err) => {
                 alert("O cadastro de uma não conformidade falhou!")
-            })
+            });
     }
+
+    
 
     return (
         <section className="criar-nao-conformidade">
@@ -59,9 +79,15 @@ function CriarNaoConformidadePage() {
             />
             <PageBody>
                 <Form onSubmit={handleOnSubmit}>
-                    <Field label="Descrição" type="text" value={descricao} setValue={setDescricao} />
-                    <Datepicker label="Data de ocorrência" value={dataOcorrencia} setValue={setDataOcorrencia} isRequired/>
-                    <Button type="submit">Salvar</Button>
+                    <Field label="Descrição" type="text" value={descricao} setValue={setDescricao}/>
+                    <Datepicker label="Data de ocorrência" value={dataOcorrencia} setValue={setDataOcorrencia}/>
+                    <SelectCustom label="Departamentos" options={departamentosOptions} value={departamentos} setValue={setDepartamentos}/>
+                    
+                    
+                    <GroupButton>
+                        <Button type="button" onClick={() => navigate(-1)}>Voltar</Button>
+                        <Button type="submit">Salvar</Button>
+                    </GroupButton>
                 </Form>
             </PageBody>
 

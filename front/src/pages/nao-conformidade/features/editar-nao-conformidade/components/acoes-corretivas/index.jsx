@@ -1,11 +1,14 @@
+import "./styles.scss";
 import { useState } from "react";
 import { createAcaoCorretiva, removeAcaoCorretiva } from "../../../../../../api/acao-corretiva";
 import Field from "../../../../../../components/field";
 import { IconButton } from "@mui/material";
 import { Check, RemoveCircleOutline } from "@mui/icons-material";
 import Datepicker from "../../../../../../components/datepicker";
+import { updateNaoConformidade } from "../../../../../../api/nao-conformidade";
+import { isNull } from "../../../../../../scripts/validation";
 
-function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade}) {
+function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade}) {
 
     const [oque, setOque] = useState("");
     const [porque, setPorque] = useState("");
@@ -13,7 +16,42 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade
     const [onde, setOnde] = useState("");
     const [ateQuando, setAteQuando] = useState();
 
+    const handleUpdateNaoConformidade = (idAcaoCorretiva) => {
+        naoConformidade['corrective-actions'].push(idAcaoCorretiva);
+        updateNaoConformidade(naoConformidade, naoConformidade.id)
+        .then().catch((err) => alert(err.message));
+    }
+
+    const validaCampos = () => {
+        let message= "";
+
+        if(isNull(oque))
+            message += "Campo 'O que' obrigatório.\n";
+
+        if(isNull(porque))
+            message += "Campo 'Por que' obrigatório.\n";
+
+        if(isNull(como))
+            message += "Campo 'Como' obrigatório.\n";
+
+        if(isNull(onde))
+            message += "Campo 'Onde' obrigatório.\n";
+
+        if(isNull(ateQuando))
+            message += "Campo 'Até quando' obrigatório.\n";
+
+        if(!isNull(message)) {
+            alert(message);
+            return false;
+        }
+
+        return true;
+    }
+
     const handleOnAdd = () => {
+
+        if(!validaCampos()) return;
+
         createAcaoCorretiva({
             'what-to-do': oque,
             'why-to-do-it': porque,
@@ -23,7 +61,7 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade
         })
         .then((response) => {
             setAcoesCorretivas(acoesCorretivasOld => [...acoesCorretivasOld, response.data]);
-            update
+            handleUpdateNaoConformidade(response.data.id)
             setOque("");
             setPorque("");
             setComo("");
@@ -43,8 +81,8 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade
 
     return (
         <section className="acoes-corretivas">
-            <table className="datatable">
-                <thead className="datatable__header">
+            <table className="acoes-corretivas__datatable">
+                <thead className="acoes-corretivas__datatable__header">
                     <tr>
                         <th>O que</th>
                         <th>Por que</th>
@@ -54,22 +92,22 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody className="datatable__body">
+                <tbody className="acoes-corretivas__datatable__body">
                     <tr>
                         <td>
-                            <Field type="text" value={oque} setValue={setOque} isRequired/>
+                            <Field type="text" value={oque} setValue={setOque}/>
                         </td>
                         <td>
-                            <Field type="text" value={porque} setValue={setPorque} isRequired/>
+                            <Field type="text" value={porque} setValue={setPorque}/>
                         </td>
                         <td>
-                            <Field type="text" value={como} setValue={setComo} isRequired/>
+                            <Field type="text" value={como} setValue={setComo}/>
                         </td>
                         <td>
-                            <Field type="text" value={onde} setValue={setOnde} isRequired/>
+                            <Field type="text" value={onde} setValue={setOnde}/>
                         </td>
                         <td>
-                            <Datepicker value={ateQuando} setValue={setAteQuando} isRequired/>
+                            <Datepicker value={ateQuando} setValue={setAteQuando}/>
                         </td>
                         <td>
                             <IconButton onClick={() => { handleOnAdd() }}>
@@ -83,9 +121,9 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, idNaoConformidade
                             <td>{item['why-to-do-it']}</td>
                             <td>{item['how-to-do-it']}</td>
                             <td>{item['where-to-do-it']}</td>
-                            <td>{item['until-when']}</td>
+                            <td>{(new Date(item['until-when'])).toLocaleDateString()}</td>
                             <td>
-                                <IconButton onClick={() => { onRemove(row.id) }}>
+                                <IconButton onClick={() => { handleOnRemove(item.id) }}>
                                     <RemoveCircleOutline/>
                                 </IconButton>
                             </td>
