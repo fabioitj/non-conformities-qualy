@@ -8,21 +8,57 @@ import { useNavigate } from "react-router";
 import { createDepartment } from "../../../api/departamento";
 import Button from "../../../components/button";
 import GroupButton from "../../../components/group-button";
+import { Alert, Snackbar } from "@mui/material";
+import TOAST from "../../../constants/toast";
+import { isNull } from "../../../scripts/validation";
 
 function CriarDepartamentoPage() {
     const [nome, setNome] = useState("");
 
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {   
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
+
     const navigate = useNavigate();
+
+    const validarCampos = () => {
+        let message = "";
+
+        if(isNull(nome))
+            message += "Campo 'Nome' obrigatório.";
+
+        if(!isNull(message)){
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(message);
+            return false;
+        }
+
+        return true;
+    }
 
     const handleOnClick = (e) => {
         e.preventDefault();
 
+        if(!validarCampos()) return;
+
         createDepartment({name: nome})
             .then((response) => {   
-                alert("Departamento salvo com sucesso!");
+                setOpenToast(true);
+                setTypeToast(TOAST.SUCCESS);
+                setMessageToast("Departamento salvo com sucesso!");
                 navigate("/departamentos");
             })
-            .catch((err) => alert(err.message));
+            .catch((err) => {
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
+            });
 
     }
 
@@ -41,6 +77,11 @@ function CriarDepartamentoPage() {
                     </GroupButton>
                 </Form>
             </PageBody>
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     );
 }

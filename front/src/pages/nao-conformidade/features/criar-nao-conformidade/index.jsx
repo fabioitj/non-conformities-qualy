@@ -13,12 +13,24 @@ import departmentToOptions from "../../mappers/departments-to-options";
 import { useNavigate } from "react-router-dom";
 import GroupButton from "../../../../components/group-button";
 import { isNull } from "../../../../scripts/validation";
+import { Alert, Snackbar } from "@mui/material";
+import TOAST from "../../../../constants/toast";
 
 function CriarNaoConformidadePage() {
     const [descricao, setDescricao] = useState("");
     const [dataOcorrencia, setDataOcorrencia] = useState();
     const [departamentos, setDepartamentos] = useState();
     const [departamentosOptions, setDepartamentosOptions] = useState();
+
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {   
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,7 +56,9 @@ function CriarNaoConformidadePage() {
         }
 
         if(!isNull(message)){
-            alert(message);
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(message);
             return false;
         }
 
@@ -62,11 +76,15 @@ function CriarNaoConformidadePage() {
             'departments': departamentos ? departamentos.map(departamento => departamento.value) : []
         })
             .then((response) => {
-                alert("Não conformidade criada com sucesso!");
+                setOpenToast(true);
+                setTypeToast(TOAST.SUCCESS);
+                setMessageToast("Não conformidade criada com sucesso!");
                 navigate("/nao-conformidade/" + response.data.id);
             })
             .catch((err) => {
-                alert("O cadastro de uma não conformidade falhou!")
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
             });
     }
 
@@ -85,12 +103,16 @@ function CriarNaoConformidadePage() {
                     
                     
                     <GroupButton>
-                        <Button type="button" onClick={() => navigate(-1)}>Voltar</Button>
+                        <Button type="button" onClick={() => navigate("/nao-conformidade")}>Voltar</Button>
                         <Button type="submit">Salvar</Button>
                     </GroupButton>
                 </Form>
             </PageBody>
-
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     )
 }

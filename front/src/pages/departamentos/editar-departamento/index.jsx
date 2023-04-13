@@ -8,10 +8,23 @@ import { useNavigate, useParams } from "react-router";
 import { getDepartmentById, updateDepartmentById } from "../../../api/departamento";
 import Button from "../../../components/button";
 import GroupButton from "../../../components/group-button";
+import TOAST from "../../../constants/toast";
+import { Alert, Snackbar } from "@mui/material";
+import { isNull } from "../../../scripts/validation";
 
 function EditarDepartamentoPage() {
     const { id } = useParams();
     const [nome, setNome] = useState("");
+
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {   
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,19 +33,47 @@ function EditarDepartamentoPage() {
             .then((response) => {
                 setNome(response.data.name);
             })
-            .catch(err => alert(err.message));
+            .catch(err => {
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
+            });
 
     }, []);
+
+    const validarCampos = () => {
+        let message = "";
+
+        if(isNull(nome))
+            message += "Campo 'Nome' obrigatório.";
+
+        if(!isNull(message)){
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(message);
+            return false;
+        }
+
+        return true;
+    }
 
     const handleOnClick = (e) => {
         e.preventDefault();
 
+        if(!validarCampos()) return;
+
         updateDepartmentById(id, {name: nome})
             .then((response) => {
-                alert("Departamento salvo com sucesso!");
+                setOpenToast(true);
+                setTypeToast(TOAST.SUCCESS);
+                setMessageToast("Departamento salvo com sucesso!");
                 navigate("/departamentos");
             })
-            .catch((err) => alert(err.message));
+            .catch((err) => {
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
+            });
     }
 
     return (
@@ -50,6 +91,11 @@ function EditarDepartamentoPage() {
                     </GroupButton>
                 </Form>
             </PageBody>
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     );
 }

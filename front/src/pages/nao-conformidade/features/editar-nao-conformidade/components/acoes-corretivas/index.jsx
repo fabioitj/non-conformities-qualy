@@ -2,11 +2,12 @@ import "./styles.scss";
 import { useState } from "react";
 import { createAcaoCorretiva, removeAcaoCorretiva } from "../../../../../../api/acao-corretiva";
 import Field from "../../../../../../components/field";
-import { IconButton } from "@mui/material";
+import { Alert, IconButton, Snackbar } from "@mui/material";
 import { Check, RemoveCircleOutline } from "@mui/icons-material";
 import Datepicker from "../../../../../../components/datepicker";
 import { updateNaoConformidade } from "../../../../../../api/nao-conformidade";
 import { isNull } from "../../../../../../scripts/validation";
+import TOAST from "../../../../../../constants/toast";
 
 function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade}) {
 
@@ -16,10 +17,23 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
     const [onde, setOnde] = useState("");
     const [ateQuando, setAteQuando] = useState();
 
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {   
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
+
     const handleUpdateNaoConformidade = (idAcaoCorretiva) => {
         naoConformidade['corrective-actions'].push(idAcaoCorretiva);
         updateNaoConformidade(naoConformidade, naoConformidade.id)
-        .then().catch((err) => alert(err.message));
+        .then().catch((err) => {
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(err.message);
+        });
     }
 
     const validaCampos = () => {
@@ -41,7 +55,10 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
             message += "Campo 'Até quando' obrigatório.\n";
 
         if(!isNull(message)) {
-            alert(message);
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(message);
+        
             return false;
         }
 
@@ -60,6 +77,10 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
             'until-when': ateQuando
         })
         .then((response) => {
+            setMessageToast("Ação corretiva criada com sucesso!");
+            setTypeToast(TOAST.SUCCESS);
+            setOpenToast(true);
+
             setAcoesCorretivas(acoesCorretivasOld => [...acoesCorretivasOld, response.data]);
             handleUpdateNaoConformidade(response.data.id)
             setOque("");
@@ -68,15 +89,26 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
             setOnde("");
             setAteQuando("");
         })
-        .catch((err) => alert(err.message));
+        .catch((err) => {
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(err.message);
+        });
     }
 
     const handleOnRemove = (id) => {
         removeAcaoCorretiva(id)
         .then(() => {
             setAcoesCorretivas(acoesCorretivasOld => acoesCorretivasOld.filter(acaoCorretiva => acaoCorretiva.id !== id));
+            setOpenToast(true);
+            setTypeToast(TOAST.SUCCESS);
+            setMessageToast("Ação corretiva removida com sucesso!");
         })
-        .catch((err) => alert(err.message));
+        .catch((err) => {
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(err.message);
+        });
     }
 
     return (
@@ -115,8 +147,8 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
                             </IconButton>
                         </td>
                     </tr>
-                    {acoesCorretivas && acoesCorretivas.map(item => (
-                        <tr key={item.id}>
+                    {acoesCorretivas && acoesCorretivas.map((item, index) => (
+                        <tr key={item.id} style={{ backgroundColor: index % 2 == 0 ? 'rgba(0, 0, 0, 0.025)' : '' }}>
                             <td>{item['what-to-do']}</td>
                             <td>{item['why-to-do-it']}</td>
                             <td>{item['how-to-do-it']}</td>
@@ -130,7 +162,12 @@ function AcoesCorretivas({acoesCorretivas, setAcoesCorretivas, naoConformidade})
                         </tr>
                     ))}
                 </tbody>
-            </table>    
+            </table>   
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     );
 }

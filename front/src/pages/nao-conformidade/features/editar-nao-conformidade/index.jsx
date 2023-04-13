@@ -18,6 +18,8 @@ import { getDepartments } from "../../../../api/departamento";
 import departmentToOptions from "../../mappers/departments-to-options";
 import GroupButton from "../../../../components/group-button";
 import { isNull } from "../../../../scripts/validation";
+import TOAST from "../../../../constants/toast";
+import { Alert, Snackbar } from "@mui/material";
 
 
 function EditarNaoConformidadePage() {
@@ -26,6 +28,15 @@ function EditarNaoConformidadePage() {
     const [departamentos, setDepartamentos] = useState();
     const [acoesCorretivas, setAcoesCorretivas] = useState([]);
     const [departamentosOptions, setDepartamentosOptions] = useState();
+
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {    
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
 
     const navigate = useNavigate();
 
@@ -36,7 +47,11 @@ function EditarNaoConformidadePage() {
             .then((response) => {
                 setDepartamentosOptions(departmentToOptions(response.data));
             })
-            .catch((err) => alert(err.message));
+            .catch((err) => {
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
+            });
 
         getNaoConformidadeById(id)
             .then((response) => {
@@ -48,7 +63,9 @@ function EditarNaoConformidadePage() {
                     setAcoesCorretivas(response['corrective-actions']);
             })
             .catch((err) => {
-                alert(err.message);
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
             })
 
     }, []);
@@ -69,7 +86,9 @@ function EditarNaoConformidadePage() {
         }
 
         if(!isNull(message)){
-            alert(message);
+            setOpenToast(true);
+            setTypeToast(TOAST.ERROR);
+            setMessageToast(message);
             return false;
         }
 
@@ -89,11 +108,15 @@ function EditarNaoConformidadePage() {
             'corrective-actions': acoesCorretivas ? acoesCorretivas.map(acao => acao.id) : [],
         }, id)
             .then((response) => {
-                alert("Não conformidade salva com sucesso!");
+                setOpenToast(true);
+                setTypeToast(TOAST.SUCCESS);
+                setMessageToast("Não conformidade salva com sucesso!");
                 navigate("/nao-conformidade/" + response.data.id);
             })
             .catch((err) => {
-                alert("O cadastro de uma não conformidade falhou!")
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
             })
     }
 
@@ -117,7 +140,7 @@ function EditarNaoConformidadePage() {
                     <SelectCustom label="Departamentos" options={departamentosOptions} value={departamentos} setValue={setDepartamentos}/>
                     
                     <GroupButton>
-                        <Button type="button" onClick={() => navigate(-1)}>Voltar</Button>
+                        <Button type="button" onClick={() => navigate("/nao-conformidade")}>Voltar</Button>
                         <Button type="submit">Salvar</Button>
                     </GroupButton>
                 </Form>
@@ -125,6 +148,11 @@ function EditarNaoConformidadePage() {
                 <Title h={'3'}>Ações corretivas</Title>
                 <AcoesCorretivas acoesCorretivas={acoesCorretivas} setAcoesCorretivas={setAcoesCorretivas} naoConformidade={naoConformidade}/>
             </PageBody>
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     );
 }

@@ -32,7 +32,8 @@ function DataTable({columns, data, unitsPerPage = 5, pathEdit, onRemove}) {
     }
 
     const verifyOnRemove = (id) => {
-        if(data && Math.ceil((data.length - 1) / unitsPerPage) < total_pages) {
+        const isLastPage = page === total_pages;
+        if(data && Math.ceil((data.length - 1) / unitsPerPage) < total_pages && isLastPage) {
             setPage(page => page - 1);
         }
 
@@ -52,7 +53,11 @@ function DataTable({columns, data, unitsPerPage = 5, pathEdit, onRemove}) {
                                 <DataTableBody columns={columns} data={data} page={page} unitsPerPage={unitsPerPage} pathEdit={pathEdit} onRemove={verifyOnRemove}/>
                             </table>
                         </div>
-                        <div className="datatable__buttons">
+                        <div className="datatable__footer">
+                        <div className="datatable__footer__total">
+                            Total: {data ? data.length : 0}
+                        </div>
+                        <div className="datatable__footer__buttons">
                             <GroupButton>
                                 <IconButton onClick={handlePreviousPage} disabled={page - 1 < 1}>
                                     <ArrowBack/>
@@ -62,6 +67,7 @@ function DataTable({columns, data, unitsPerPage = 5, pathEdit, onRemove}) {
                                     <ArrowForward/>
                                 </IconButton>
                             </GroupButton>
+                        </div>
                         </div>
                     </>
                 )

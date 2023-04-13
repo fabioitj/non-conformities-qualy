@@ -5,9 +5,20 @@ import PageHeader from "../../components/page-header";
 import "./styles.scss";
 import columns from "./constants/datatable-columns";
 import { getNaoConformidades, removeNaoConformidade } from "../../api/nao-conformidade";
+import { Alert, Snackbar } from "@mui/material";
+import TOAST from "../../constants/toast";
 
 function NaoConformidadePage() {
     const [naoConformidade, setNaoConformidade] = useState([]);
+
+    const [openToast, setOpenToast] = useState(false);
+    const [typeToast, setTypeToast] = useState("");
+    const [messageToast, setMessageToast] = useState("");
+    const handleClose = () => {   
+        setOpenToast(false);
+        setTypeToast("");
+        setMessageToast("");
+    }
 
     useEffect(() => {
         getNaoConformidades()
@@ -15,17 +26,24 @@ function NaoConformidadePage() {
                 setNaoConformidade(response);
             })
             .catch((err) => {
-                alert(err.message);
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
             });
     }, []);
 
     const handleOnRemove = (id) => {
         removeNaoConformidade(id)
             .then((response) => {
+                setOpenToast(true);
+                setTypeToast(TOAST.SUCCESS);
+                setMessageToast("Não conformidade removida com sucesso!");
                 setNaoConformidade(naoConformidade => naoConformidade.filter(item => item.id !== id));
             })
             .catch((err) => {
-                alert(err.message);
+                setOpenToast(true);
+                setTypeToast(TOAST.ERROR);
+                setMessageToast(err.message);
             });
     }
 
@@ -39,6 +57,11 @@ function NaoConformidadePage() {
             <PageBody>
                 <DataTable columns={columns} data={naoConformidade} pathEdit={"/nao-conformidade/"} onRemove={handleOnRemove}/>
             </PageBody>
+            <Snackbar open={openToast} resumeHideDuration={1} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={typeToast} sx={{ width: '100%' }}>
+                    {messageToast}
+                </Alert>
+            </Snackbar>
         </section>
     );
 }
